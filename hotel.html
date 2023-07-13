@@ -8,10 +8,8 @@
 
 /* Add your custom styles here */
 
-input[type="checkbox"] {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
+input[type='checkbox'] {
+  /* display: none; */
   width: 20px;
   height: 20px;
   border: 2px solid #ccc;
@@ -21,9 +19,7 @@ input[type="checkbox"] {
   transition: background-color 0.3s ease;
 }
 
-input[type="checkbox"]:checked {
-  background-color: #2196F3;
-}
+
   </style>
 </head>
 <body>
@@ -49,6 +45,7 @@ input[type="checkbox"]:checked {
     
     <h2>Select Room Allocation:</h2>
     <div id="roomAllocation">
+      <!-- <input type="checkbox" /><label>Trial</label> -->
       <!-- Room allocation for each day will be dynamically generated here -->
     </div>
     
@@ -122,42 +119,43 @@ input[type="checkbox"]:checked {
     document.getElementById("registrationForm").addEventListener("input", generateGuestCheckboxes);
 
     function generateGuestCheckboxes() {
-  var guestCount = parseInt(document.getElementById("guestCount").value);
-  var roomAllocation = document.getElementById("roomAllocation");
-
-  // Clear existing guest checkboxes
-  var guestCheckboxes = roomAllocation.querySelectorAll("[id^='guestCheckboxes']");
-  guestCheckboxes.forEach(function (element) {
-    element.innerHTML = "";
-  });
-
-   // Generate guest checkboxes for each day
-   var arrivalDate = new Date(document.getElementById("arrivalDate").value);
+      var guestCount = parseInt(document.getElementById("guestCount").value);
+      var roomAllocation = document.getElementById("roomAllocation");
+      
+      // Clear existing guest checkboxes
+      // var guestCheckboxes = roomAllocation.querySelectorAll("[id^='guestCheckboxes']");
+      // guestCheckboxes.forEach(function (element) {
+      //   element.innerHTML = "";
+      // });
+      
+      // Generate guest checkboxes for each day
+      var arrivalDate = new Date(document.getElementById("arrivalDate").value);
       var departureDate = new Date(document.getElementById("departureDate").value);
       var date = new Date(arrivalDate);
       while (date <= departureDate) {
         var formattedDate = date.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" });
         var guestCheckboxesDiv = document.getElementById("guestCheckboxes" + formattedDate);
 
-        for (var i = 1; i <= guestCount; i++) {
-          var guestName = document.getElementById("guestName" + i).value;
-          var guestCheckbox = document.createElement("input");
-          guestCheckbox.type = "checkbox";
-          guestCheckbox.name = "guestCheckbox" + formattedDate;
-          guestCheckbox.id = "guestCheckbox" + formattedDate + "_" + i;
-          guestCheckbox.value = guestName;
-          guestCheckbox.classList.add("guestCheckbox");
-          guestCheckboxesDiv.appendChild(guestCheckbox);
+      for (var i = 1; i <= guestCount; i++) {
+        var guestName = document.getElementById("guestName" + i).value;
+        var guestCheckbox = document.createElement("input");
+        guestCheckbox.type = "checkbox";
+        guestCheckbox.name = "guestCheckbox" + formattedDate;
+        guestCheckbox.id = "guestCheckbox" + formattedDate + "_" + i;
+        guestCheckbox.value = guestName;
+        guestCheckbox.classList.add("guestCheckbox");
+        guestCheckboxesDiv.appendChild(guestCheckbox);
 
-          var guestLabel = document.createElement("label");
-          guestLabel.htmlFor = "guestCheckbox" + formattedDate + "_" + i;
-          guestLabel.textContent = guestName;
-          guestCheckboxesDiv.appendChild(guestLabel);
-        }
-
-        date.setDate(date.getDate() + 1); // Increment date by 1 day
+        var guestLabel = document.createElement("label");
+        guestLabel.htmlFor = "guestCheckbox" + formattedDate + "_" + i;
+        guestLabel.textContent = guestName;
+        guestCheckboxesDiv.appendChild(guestLabel);
       }
+
+      date.setDate(date.getDate() + 1); // Increment date by 1 day
     }
+    }
+
 
 
     // Generate hotel options
