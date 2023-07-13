@@ -61,9 +61,9 @@ input[type="checkbox"]:checked {
     <div id="invoice">
       <!-- Invoice details will be dynamically generated here -->
     </div>
-    
+<!--     
     <label for="consent">I accept the terms and conditions:</label>
-    <input type="checkbox" id="consent" required>
+    <input type="checkbox" id="consent" required> -->
     
     <button type="submit">Submit</button>
   </form>
@@ -110,7 +110,6 @@ input[type="checkbox"]:checked {
           <input type="number" id="roomCount${formattedDate}" min="0" class="roomCount"><br>
           <label for="guestCheckboxes${formattedDate}">Guests:</label>
           <div id="guestCheckboxes${formattedDate}">
-            <!-- Guest checkboxes will be dynamically generated here -->
           </div>
         `;
         roomAllocation.appendChild(roomDiv);
@@ -132,40 +131,33 @@ input[type="checkbox"]:checked {
     element.innerHTML = "";
   });
 
-  // Generate guest checkboxes for each day
-  var arrivalDate = new Date(document.getElementById("arrivalDate").value);
-  var departureDate = new Date(document.getElementById("departureDate").value);
-  var date = new Date(arrivalDate);
+   // Generate guest checkboxes for each day
+   var arrivalDate = new Date(document.getElementById("arrivalDate").value);
+      var departureDate = new Date(document.getElementById("departureDate").value);
+      var date = new Date(arrivalDate);
+      while (date <= departureDate) {
+        var formattedDate = date.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" });
+        var guestCheckboxesDiv = document.getElementById("guestCheckboxes" + formattedDate);
 
-  while (date <= departureDate) {
-    var formattedDate = date.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" });
-    var guestCheckboxesDiv = document.getElementById("guestCheckboxes" + formattedDate);
+        for (var i = 1; i <= guestCount; i++) {
+          var guestName = document.getElementById("guestName" + i).value;
+          var guestCheckbox = document.createElement("input");
+          guestCheckbox.type = "checkbox";
+          guestCheckbox.name = "guestCheckbox" + formattedDate;
+          guestCheckbox.id = "guestCheckbox" + formattedDate + "_" + i;
+          guestCheckbox.value = guestName;
+          guestCheckbox.classList.add("guestCheckbox");
+          guestCheckboxesDiv.appendChild(guestCheckbox);
 
-    for (var i = 1; i <= guestCount; i++) {
-      var guestName = document.getElementById("guestName" + i).value;
+          var guestLabel = document.createElement("label");
+          guestLabel.htmlFor = "guestCheckbox" + formattedDate + "_" + i;
+          guestLabel.textContent = guestName;
+          guestCheckboxesDiv.appendChild(guestLabel);
+        }
 
-      var guestCheckboxWrapper = document.createElement("div");
-      guestCheckboxWrapper.classList.add("guestCheckboxWrapper");
-
-      var guestCheckbox = document.createElement("input");
-      guestCheckbox.type = "checkbox";
-      guestCheckbox.name = "guestCheckbox" + formattedDate + "[]";
-      guestCheckbox.id = "guestCheckbox" + formattedDate + "_" + i;
-      guestCheckbox.value = guestName;
-      guestCheckbox.classList.add("guestCheckbox");
-
-      var guestLabel = document.createElement("label");
-      guestLabel.htmlFor = "guestCheckbox" + formattedDate + "_" + i;
-      guestLabel.textContent = guestName;
-
-      guestCheckboxWrapper.appendChild(guestCheckbox);
-      guestCheckboxWrapper.appendChild(guestLabel);
-      guestCheckboxesDiv.appendChild(guestCheckboxWrapper);
+        date.setDate(date.getDate() + 1); // Increment date by 1 day
+      }
     }
-
-    date.setDate(date.getDate() + 1);
-  }
-}
 
 
     // Generate hotel options
@@ -207,7 +199,7 @@ function generateInvoice() {
   var invoice = document.getElementById("invoice");
   var totalPrice = 0;
 
-  roomAllocation.forEach(function(room) {s
+  roomAllocation.forEach(function(room) {
     var roomCount = parseInt(room.value);
     totalPrice += roomCount * parseInt(selectedHotel.value.split(":")[1]);
   });
