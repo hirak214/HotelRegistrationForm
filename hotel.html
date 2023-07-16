@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <!-- Add Firebase SDK script tags -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/7.21.0/firebase.js"></script>
+
   <title>Hotel Request Form</title>
   <style>
     /* CSS styles for form layout */
@@ -9,6 +12,7 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 20px;
+  background-color: #f3f0e7;
 }
 
 #invoiceWrapper {
@@ -155,9 +159,9 @@ input[type='checkbox'] {
 </head>
 <body>
  
-  
+  <h1>Hotel Request Form</h1>
   <form id="registrationForm">
-    <h1>Hotel Request Form</h1>
+    
     <br>
     <label for="guestCount">Number of Guests:</label>
     <input type="number" id="guestCount" min="1" required>
@@ -169,12 +173,17 @@ input[type='checkbox'] {
     <div id="guestDetails">
       <!-- Guest names and year of birth input fields will be dynamically generated here -->
     </div>
-    
+
+    <label>E-mail: </label><input type="email" name="email" id="email" required>
+<label>Phone: </label><input type="tel" name="phone" id="phone" required>
+
+    <br><br>
     <label for="arrivalDate">Arrival Date:</label>
 <input type="date" id="arrivalDate" min="2023-11-10" max="2023-11-15" required>
-
 <label for="departureDate">Departure Date:</label>
 <input type="date" id="departureDate" min="2023-11-10" max="2023-11-15" required>
+
+
 
     
     <h2>Select Room Allocation:</h2>
@@ -199,9 +208,9 @@ input[type='checkbox'] {
   </div>
 
   <h2>Payment Options:</h2>
-<input type="radio" name="paymentOption" id="upiOption" value="upi" checked>
+<input type="radio" name="paymentOption" id="paymentOption" value="upi" checked>
 <label for="upiOption">UPI</label>
-<input type="radio" name="paymentOption" id="bankOption" value="bank">
+<input type="radio" name="paymentOption" id="paymentOption" value="bank">
 <label for="bankOption">Bank Transfer</label>
 
 <div id="upiDetails" style="display: block;">
@@ -210,7 +219,6 @@ input[type='checkbox'] {
   <p>Name: SHREE DASHANIMA VANIK SAMAJ</p>
   <p>UPI-ID: shreedashanimavaniks.62689508@okhdfcbank</p>
   <label style="width: 40%;">UPI Transaction Id: </label>
-  <input type="text" id="upiId" required>
 </div>
 
 <div id="bankDetails" style="display: none;">
@@ -221,9 +229,8 @@ input[type='checkbox'] {
     <p>SWIFT CODE: HDFCINBBXXX</p>
   <!-- Add bank details and transaction field input -->
   <label>Bank Transaction Id: </label>
-  <input type="text" id="upiId" required>
 </div>
-
+<input type="text" name="transactionId" id="transactionId" placeholder="Transaction Id here" required>
 
     <br>
     <label for="consent">I accept the terms and conditions:</label>
@@ -252,7 +259,7 @@ input[type='checkbox'] {
           <label for="guestName${i}">Guest Name ${i}:</label>
           <input type="text" id="guestName${i}" required>
           <label for="guestYearOfBirth${i}">Year of Birth:</label>
-          <input type="number" id="guestYearOfBirth${i}" min="1950" max="2023" required oninput="validateYearOfBirth()">
+          <input type="number" id="guestYearOfBirth${i}" min="1950" max="2023" required">
           <span id="yearOfBirthError" style="color: red; display: none;">Please enter a valid year of birth (between 1950 and 2023).</span>
 
         `;
@@ -286,8 +293,6 @@ input[type='checkbox'] {
           <div id="guestCheckboxes${formattedDate}">
           </div>
         `;
-        console.log(roomAllocation);
-        console.log("here")
         roomAllocation.appendChild(roomDiv);
         date.setDate(date.getDate() + 1); // Increment date by 1 day
       }
@@ -301,7 +306,8 @@ input[type='checkbox'] {
     //   guestCheckboxes.forEach(function (element) {
     //     element.innerHTML = "";
     //   });
-// Generate guest checkboxes for room allocation
+
+    // Generate guest checkboxes for room allocation
 document.getElementById("registrationForm").addEventListener("input", generateGuestCheckboxes);
 function generateGuestCheckboxes() {
   var guestCount = parseInt(document.getElementById("guestCount").value);
@@ -381,10 +387,9 @@ function generateHotelOptions() {
 }
 
 
-    // Generate invoice
-    // Generate invoice
-document.getElementById("registrationForm").addEventListener("input", generateInvoice);
 
+  // Generate invoice
+document.getElementById("registrationForm").addEventListener("input", generateInvoice);
 function generateInvoice() {
   var selectedHotel = document.querySelector('input[name="hotelOption"]:checked');
   var roomAllocation = document.querySelectorAll(".roomCount");
@@ -393,7 +398,11 @@ function generateInvoice() {
 
   roomAllocation.forEach(function(room) {
     var roomCount = parseInt(room.value);
-    totalPrice += roomCount * parseInt(selectedHotel.value.split(":")[1]);
+    if (selectedHotel && selectedHotel.value) {
+  totalPrice += roomCount * parseInt(selectedHotel.value.split(":")[1]);
+} else {
+  // Handle the case when selectedHotel is null or undefined
+}
   });
 
   if (selectedHotel) {
@@ -445,6 +454,85 @@ document.getElementById("consent").addEventListener("change", function() {
 });
 
 
+  
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyC-u-aZXFHKI5jQgL-jUWfl0-qFnd2s8-g",
+    authDomain: "hotelrequest-vdj2023.firebaseapp.com",
+    databaseURL: "https://hotelrequest-vdj2023-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "hotelrequest-vdj2023",
+    storageBucket: "hotelrequest-vdj2023.appspot.com",
+    messagingSenderId: "120848277297",
+    appId: "1:120848277297:web:ca1172f549bdb7fc8c5a10",
+    measurementId: "G-7DLVGBQYTD"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  
+  var database = firebase.database().ref('hotelrequest-vdj2023');
+
+  document.getElementById("registrationForm").addEventListener("submit", submitForm);
+  function submitForm(e) {
+    e.preventDefault();
+
+    var guestCount = getElementValue("guestCount");
+    var roomCount = getElementValue("roomCount");
+    var email = getElementValue("email");
+    var phone = getElementValue("phone");
+    var arrivalDate = getElementValue("arrivalDate");
+    var departureDate = getElementValue("departureDate");
+    var paymentOption = getElementValue("paymentOption");
+    var transactionId = getElementValue("transactionId");
+
+
+    // Get the dynamically generated fields
+      var guestDetails = document.getElementById("guestDetails").querySelectorAll("input[type='text']");
+      var roomAllocation = document.getElementById("roomAllocation").querySelectorAll(".roomCount");
+      var hotelOption = document.querySelector('input[name="hotelOption"]:checked').value;
+
+
+      // Create an object to store the dynamically generated fields
+      var dynamicFields = {
+        guests: [],
+        roomAllocation: []
+      };
+  
+      // Loop through guest details fields and add them to the dynamicFields object
+      guestDetails.forEach(function(field) {
+        dynamicFields.guests.push(field.value);
+      });
+  
+      // Loop through room allocation fields and add them to the dynamicFields object
+      roomAllocation.forEach(function(field) {
+        dynamicFields.roomAllocation.push(field.value);
+      });
+      
+      var formData = database.push();
+      formData.set({
+        guestCount: guestCount,
+        roomCount: roomCount,
+        email: email,
+        phone: phone,
+        arrivalDate: arrivalDate,
+        departureDate: departureDate,
+        paymentOption: paymentOption,
+        transactionId: transactionId,
+        dynamicFields: dynamicFields,
+        hotelOption: hotelOption
+      });
+      console.log("Doneeeee");
+  
+  }
+
+  const getElementValue = (id) => {
+    return document.getElementById(id).value;
+  }
+
   </script>
+  
+
 </body>
 </html>
