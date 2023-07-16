@@ -161,7 +161,8 @@ input[type='checkbox'] {
  
   <h1>Hotel Request Form</h1>
   <form id="registrationForm">
-    
+    <input type="hidden" name="dynamicFields" id="dynamicFieldsInput">
+
     <br>
     <label for="guestCount">Number of Guests:</label>
     <input type="number" id="guestCount" min="1" required>
@@ -244,7 +245,7 @@ input[type='checkbox'] {
   </form>
 
   <script>
-    // JavaScript code for form functionality
+  // JavaScript code for form functionality
     // Add your custom JavaScript code here
 
     // Dynamically generate guest name and year of birth input fields based on the number of guests
@@ -270,36 +271,44 @@ input[type='checkbox'] {
     
 
     // Generate room allocation options for each day
-    var formattedDates = [];
-document.getElementById("arrivalDate").addEventListener("input", generateRoomAllocation);
-document.getElementById("departureDate").addEventListener("input", generateRoomAllocation);
+    document.getElementById("arrivalDate").addEventListener("input", generateRoomAllocation);
+    document.getElementById("departureDate").addEventListener("input", generateRoomAllocation);
 
-function generateRoomAllocation() {
-  var arrivalDate = new Date(document.getElementById("arrivalDate").value);
-  var departureDate = new Date(document.getElementById("departureDate").value);
-  var roomAllocation = document.getElementById("roomAllocation");
-  roomAllocation.innerHTML = ""; // Clear existing fields
+    function generateRoomAllocation() {
+      var arrivalDate = new Date(document.getElementById("arrivalDate").value);
+      var departureDate = new Date(document.getElementById("departureDate").value);
+      var roomAllocation = document.getElementById("roomAllocation");
+      roomAllocation.innerHTML = ""; // Clear existing fields
 
-  var date = new Date(arrivalDate);
-  while (date <= departureDate) {
-    var formattedDate = date.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" });
-    var roomDiv = document.createElement("div");
-    roomDiv.innerHTML = `
-      <h3>${formattedDate}</h3>
-      <label for="roomCount${formattedDate}">Number of Rooms:</label>
-      <input type="number" id="roomCount${formattedDate}" min="0" class="roomCount" required><br>
-      <label for="guestCheckboxes${formattedDate}">Guests:</label>
-      <div id="guestCheckboxes${formattedDate}">
-      </div>
-    `;
-    roomAllocation.appendChild(roomDiv);
-    date.setDate(date.getDate() + 1); // Increment date by 1 day
-  }
-}
+      
+
+      var date = new Date(arrivalDate);
+      while (date <= departureDate) {
+        var formattedDate = date.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" });
+        var roomDiv = document.createElement("div");
+        roomDiv.innerHTML = `
+          <h3>${formattedDate}</h3>
+          <label for="roomCount${formattedDate}">Number of Rooms:</label>
+          <input type="number" id="roomCount${formattedDate}" min="0" class="roomCount" required><br>
+          <label for="guestCheckboxes${formattedDate}">Guests:</label>
+          <div id="guestCheckboxes${formattedDate}">
+          </div>
+        `;
+        roomAllocation.appendChild(roomDiv);
+        date.setDate(date.getDate() + 1); // Increment date by 1 day
+      }
+    }
 
 
       
-  // Generate guest checkboxes for room allocation
+    
+    // // clear existing guest checkboxes
+    // var guestCheckboxes = roomAllocation.querySelectorAll("[id^='guestCheckboxes']");
+    //   guestCheckboxes.forEach(function (element) {
+    //     element.innerHTML = "";
+    //   });
+
+    // Generate guest checkboxes for room allocation
 document.getElementById("registrationForm").addEventListener("input", generateGuestCheckboxes);
 function generateGuestCheckboxes() {
   var guestCount = parseInt(document.getElementById("guestCount").value);
@@ -347,8 +356,6 @@ function generateGuestCheckboxes() {
     date.setDate(date.getDate() + 1); // Increment date by 1 day
   }
 }
-
-
 // Generate hotel options
 document.getElementById("roomCount").addEventListener("input", generateHotelOptions);
 document.getElementById("guestCount").addEventListener("input", generateHotelOptions); // Add this line
@@ -373,7 +380,7 @@ function generateHotelOptions() {
   hotels.forEach(function(hotel) {
     var hotelDiv = document.createElement("div");
     hotelDiv.innerHTML = `
-      <input type="radio" name="hotelOption" id="hotelOption" value="${hotel.name}:${hotel.price}">
+      <input type="radio" name="hotelOption" id="hotelOption${hotel.name}" value="${hotel.name}:${hotel.price}">
       <label for="hotelOption${hotel.name}">${hotel.name} - ₹${hotel.price} per night</label>
     `;
     hotelOptions.appendChild(hotelDiv);
@@ -467,64 +474,63 @@ document.getElementById("consent").addEventListener("change", function() {
 
   
   var database = firebase.database().ref('hotelrequest-vdj2023');
+
   document.getElementById("registrationForm").addEventListener("submit", submitForm);
+  function submitForm(e) {
+    e.preventDefault();
 
-function submitForm(e) {
-  e.preventDefault();
-
-  var guestCount = getElementValue("guestCount");
-  var roomCount = getElementValue("roomCount");
-  var email = getElementValue("email");
-  var phone = getElementValue("phone");
-  var arrivalDate = getElementValue("arrivalDate");
-  var departureDate = getElementValue("departureDate");
-  var paymentOption = getElementValue("paymentOption");
-  var transactionId = getElementValue("transactionId");
-  var hotelOption = getElementValue("hotelOption");
-
-  var dynamicFields = {
-    guests: [],
-    roomAllocation: []
-  };
-
-  formattedDates.forEach(function(date) {
-    var allocationRoomCount = getElementValue(`roomCount${date}`);
-    var guests = [];
-
-    var guestCheckboxes = document.querySelectorAll(`#guestCheckboxes${date} input[type="checkbox"]:checked`);
-    guestCheckboxes.forEach(function(checkbox) {
-      guests.push(checkbox.value);
-    });
-
-    dynamicFields.roomAllocation.push({
-      date: date,
-      roomCount: allocationRoomCount,
-      guests: guests
-    });
-  });
-
-  var formData = {
-    guestCount: guestCount,
-    roomCount: roomCount,
-    email: email,
-    phone: phone,
-    arrivalDate: arrivalDate,
-    departureDate: departureDate,
-    paymentOption: paymentOption,
-    transactionId: transactionId,
-    dynamicFields: dynamicFields,
-    hotelOption: hotelOption
-  };
-
-  var newFormDataRef = database.push();
-  newFormDataRef.set(formData);
-  console.log("Data uploaded successfully!");
-}
+    var guestCount = getElementValue("guestCount");
+    var roomCount = getElementValue("roomCount");
+    var email = getElementValue("email");
+    var phone = getElementValue("phone");
+    var arrivalDate = getElementValue("arrivalDate");
+    var departureDate = getElementValue("departureDate");
+    var paymentOption = getElementValue("paymentOption");
+    var transactionId = getElementValue("transactionId");
 
 
-const getElementValue = (id) => {
-  return document.getElementById(id).value;
-}
+    // Get the dynamically generated fields
+      var guestDetails = document.getElementById("guestDetails").querySelectorAll("input[type='text']");
+      var roomAllocation = document.getElementById("roomAllocation").querySelectorAll(".roomCount");
+      var hotelOption = document.querySelector('input[name="hotelOption"]:checked').value;
+
+
+      // Create an object to store the dynamically generated fields
+      var dynamicFields = {
+        guests: [],
+        roomAllocation: []
+      };
+  
+      // Loop through guest details fields and add them to the dynamicFields object
+      guestDetails.forEach(function(field) {
+        dynamicFields.guests.push(field.value);
+      });
+  
+      // Loop through room allocation fields and add them to the dynamicFields object
+      roomAllocation.forEach(function(field) {
+        dynamicFields.roomAllocation.push(field.value);
+      });
+      
+      var formData = database.push();
+      formData.set({
+        guestCount: guestCount,
+        roomCount: roomCount,
+        email: email,
+        phone: phone,
+        arrivalDate: arrivalDate,
+        departureDate: departureDate,
+        paymentOption: paymentOption,
+        transactionId: transactionId,
+        dynamicFields: dynamicFields,
+        hotelOption: hotelOption
+      });
+      console.log("Doneeeee");
+  
+  }
+
+  const getElementValue = (id) => {
+    return document.getElementById(id).value;
+  }
 
   </script>
   
