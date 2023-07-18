@@ -478,7 +478,7 @@ document.getElementById("consent").addEventListener("change", function() {
   function submitForm(e) {
     e.preventDefault();
 
-    var guestCount = getElementValue("guestCount");
+     var guestCount = getElementValue("guestCount");
   var roomCount = getElementValue("roomCount");
   var email = getElementValue("email");
   var phone = getElementValue("phone");
@@ -493,24 +493,32 @@ document.getElementById("consent").addEventListener("change", function() {
 
   var dynamicFields = [];
 
-  // Generate guest information and room allocation for each day
-  var date = new Date(arrivalDate);
-  while (date <= departureDate) {
-    var formattedDate = date.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" });
+// Generate guest information and room allocation for each day
+var arrival = new Date(arrivalDate);
+var departure = new Date(departureDate);
+var date = new Date(arrivalDate);
 
-    var guestsChecked = document.querySelectorAll("#guestCheckboxes" + formattedDate + " input[type='checkbox']:checked");
-    var guestsStaying = Array.from(guestsChecked).map(function(checkbox) {
-      return checkbox.value;
-    });
+while (date <= departure) {
+  var formattedDate = date.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" });
+  var dateSelector = formattedDate.replace(/\W/g, "");
 
-    dynamicFields.push({
-      date: formattedDate,
-      rooms: roomAllocation[dateIndex].value,
-      guests: guestsStaying
-    });
+  var guestCheckboxesDiv = document.getElementById("guestCheckboxes" + formattedDate); // Update ID format
 
-    date.setDate(date.getDate() + 1); // Increment date by 1 day
-  }
+  var guestsChecked = guestCheckboxesDiv.querySelectorAll("input[type='checkbox']:checked");
+  var guestsStaying = Array.from(guestsChecked).map(function(checkbox) {
+    return checkbox.value;
+  });
+
+  var roomIndex = dateDiffInDays(arrival, date);
+  dynamicFields.push({
+    date: formattedDate,
+    rooms: roomAllocation[roomIndex].value,
+    guests: guestsStaying
+  });
+
+  date.setDate(date.getDate() + 1);
+}
+
 
   var guestInfo = [];
 
@@ -533,14 +541,24 @@ document.getElementById("consent").addEventListener("change", function() {
     departureDate: departureDate,
     paymentOption: paymentOption,
     transactionId: transactionId,
-    guestInfo: guestInfo, // Include the guest information
-    dynamicFields: dynamicFields, // Include the modified dynamicFields object
+    guestInfo: guestInfo, 
+    planOfStay: dynamicFields, 
     hotelOption: hotelOption
   });
 
   console.log("Data uploaded to Firebase successfully!");
-}
+  // Clear form fields
+document.getElementById("registrationForm").reset();
+alert("Form submitted successfully!");
 
+// Refresh the page
+location.reload();
+
+}
+function dateDiffInDays(date1, date2) {
+  const timeDiff = Math.abs(date2.getTime() - date1.getTime());
+  return Math.ceil(timeDiff / (1000 * 3600 * 24));
+}
   const getElementValue = (id) => {
     return document.getElementById(id).value;
   }
