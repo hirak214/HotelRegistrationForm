@@ -225,7 +225,7 @@ input[type='checkbox'] {
 <div id="bankDetails" style="display: none;">
   <h3>Bank Details:</h3>
   <p>Name : SHREE DASHANIMA VANIK SAMAJ</p>
-    <p>Ne No : 50200076443991</p>
+    <p>Account No : 50200076443991</p>
     <p>IFSC CODE : HDFC0005644</p>
     <p>SWIFT CODE: HDFCINBBXXX</p>
   <!-- Add bank details and transaction field input -->
@@ -368,13 +368,12 @@ function generateHotelOptions() {
 
   // Define the hotel options with prices
   var hotels = [
-    { name: "Hotel A", price: 1000 },
-    { name: "Hotel B", price: 1500 },
-    { name: "Hotel C", price: 2000 },
-    { name: "Hotel D", price: 2500 },
-    { name: "Hotel E", price: 3000 },
-    { name: "Hotel F", price: 3500 },
-    { name: "Hotel G", price: 4000 }
+    { name: "Goyal Palace", price: 3000 },
+    { name: "Prabhuta Party Plot", price: 2500 },
+    { name: "Kamdhenu Hotel", price: 2500 },
+    { name: "Limdi", price: 2500 },
+    { name: "Central Plaza", price: 2000 },
+    { name: "Hotel Tribhuvan", price: 2000 }
   ];
 
   hotels.forEach(function(hotel) {
@@ -480,53 +479,67 @@ document.getElementById("consent").addEventListener("change", function() {
     e.preventDefault();
 
     var guestCount = getElementValue("guestCount");
-    var roomCount = getElementValue("roomCount");
-    var email = getElementValue("email");
-    var phone = getElementValue("phone");
-    var arrivalDate = getElementValue("arrivalDate");
-    var departureDate = getElementValue("departureDate");
-    var paymentOption = getElementValue("paymentOption");
-    var transactionId = getElementValue("transactionId");
+  var roomCount = getElementValue("roomCount");
+  var email = getElementValue("email");
+  var phone = getElementValue("phone");
+  var arrivalDate = getElementValue("arrivalDate");
+  var departureDate = getElementValue("departureDate");
+  var paymentOption = getElementValue("paymentOption");
+  var transactionId = getElementValue("transactionId");
 
+  var guestDetails = document.getElementById("guestDetails").querySelectorAll("input[type='text']");
+  var roomAllocation = document.getElementById("roomAllocation").querySelectorAll(".roomCount");
+  var hotelOption = document.querySelector('input[name="hotelOption"]:checked').value;
 
-    // Get the dynamically generated fields
-      var guestDetails = document.getElementById("guestDetails").querySelectorAll("input[type='text']");
-      var roomAllocation = document.getElementById("roomAllocation").querySelectorAll(".roomCount");
-      var hotelOption = document.querySelector('input[name="hotelOption"]:checked').value;
+  var dynamicFields = [];
 
+  // Generate guest information and room allocation for each day
+  var date = new Date(arrivalDate);
+  while (date <= departureDate) {
+    var formattedDate = date.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" });
 
-      // Create an object to store the dynamically generated fields
-      var dynamicFields = {
-        guests: [],
-        roomAllocation: []
-      };
-  
-      // Loop through guest details fields and add them to the dynamicFields object
-      guestDetails.forEach(function(field) {
-        dynamicFields.guests.push(field.value);
-      });
-  
-      // Loop through room allocation fields and add them to the dynamicFields object
-      roomAllocation.forEach(function(field) {
-        dynamicFields.roomAllocation.push(field.value);
-      });
-      
-      var formData = database.push();
-      formData.set({
-        guestCount: guestCount,
-        roomCount: roomCount,
-        email: email,
-        phone: phone,
-        arrivalDate: arrivalDate,
-        departureDate: departureDate,
-        paymentOption: paymentOption,
-        transactionId: transactionId,
-        dynamicFields: dynamicFields,
-        hotelOption: hotelOption
-      });
-      console.log("Doneeeee");
-  
+    var guestsChecked = document.querySelectorAll("#guestCheckboxes" + formattedDate + " input[type='checkbox']:checked");
+    var guestsStaying = Array.from(guestsChecked).map(function(checkbox) {
+      return checkbox.value;
+    });
+
+    dynamicFields.push({
+      date: formattedDate,
+      rooms: roomAllocation[dateIndex].value,
+      guests: guestsStaying
+    });
+
+    date.setDate(date.getDate() + 1); // Increment date by 1 day
   }
+
+  var guestInfo = [];
+
+  guestDetails.forEach(function(field, index) {
+    var guestName = field.value;
+    var guestYearOfBirth = document.getElementById("guestYearOfBirth" + (index + 1)).value;
+    guestInfo.push({
+      name: guestName,
+      dateOfBirth: guestYearOfBirth
+    });
+  });
+
+  var formData = database.push();
+  formData.set({
+    guestCount: guestCount,
+    roomCount: roomCount,
+    email: email,
+    phone: phone,
+    arrivalDate: arrivalDate,
+    departureDate: departureDate,
+    paymentOption: paymentOption,
+    transactionId: transactionId,
+    guestInfo: guestInfo, // Include the guest information
+    dynamicFields: dynamicFields, // Include the modified dynamicFields object
+    hotelOption: hotelOption
+  });
+
+  console.log("Data uploaded to Firebase successfully!");
+}
 
   const getElementValue = (id) => {
     return document.getElementById(id).value;
