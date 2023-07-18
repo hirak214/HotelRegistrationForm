@@ -15,6 +15,27 @@ body {
   background-color: #f3f0e7;
 }
 
+img {
+  max-width: 60%;
+  height: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+
+}
+
+.navbar {
+  background-color: rgba(58, 153, 174, 1);
+  padding: 30px;
+  text-align: center;
+  color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+}
+
 #invoiceWrapper {
   background-color: #fff;
   padding: 1em;
@@ -23,7 +44,7 @@ body {
 
 h1 {
   color: #333;
-  font-size: 34px;
+  font-size: 44px;
   text-align: center;
   text-decoration: dashed;
   margin-top: 0; /* Remove the default top margin */
@@ -158,7 +179,11 @@ input[type='checkbox'] {
   </style>
 </head>
 <body>
- 
+  <div class="navbar">
+    Vibrant Diwali Jhalod 2023
+  </div>
+  <img src="logo.png" alt="VDJ2023_logo">
+
   <h1>Hotel Request Form</h1>
   <form id="registrationForm">
     <input type="hidden" name="dynamicFields" id="dynamicFieldsInput">
